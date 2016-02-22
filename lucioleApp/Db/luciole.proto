@@ -1,0 +1,70 @@
+ReplyTimeout=100;
+ReadTimeout=100;
+
+W = "\x1b\x40";
+R = "\x1b\xC0";
+CS = "%<ccitt8>";
+
+readVolatile1b {
+    out $W 0x92 0x01 $1 $CS;
+    in  $R 0x12 0x02 "%*1r%01r" $CS;
+}
+
+readVolatile2b {
+    out $W 0x92 0x01 $1 $CS;
+    in  $R 0x12 0x03 "%*1r%#02r" $CS;
+}
+
+writeVolatile1b {
+    out $W $2 0x01 "%1r" $CS;
+    in  $R $3 0x02 "%*1r%01r" $CS;
+    @init { readVolatile1b; }
+}
+
+writeVolatile2b {
+    out $W $2 0x02 "%#02.2r" $CS;
+    in  $R $3 0x03 "%*1r%#02r" $CS;
+    @init { readVolatile2b; }
+}
+
+readFlash1b {
+    out $W 0x90 0x01 $1 $CS;
+    in  $R 0x10 0x02 "%*1r%01r" $CS;
+}
+
+readFlash2b {
+    out $W 0x90 0x01 $1 $CS;
+    in  $R 0x10 0x03 "%*1r%#02r" $CS;
+}
+
+writeFlash1b {
+    out $W 0x91 0x02 $1 "%01r" $CS;
+    in  $R 0x11 0x01 $1 $CS;
+    @init { readFlash1b; }
+}
+
+writeFlash2b {
+    out $W 0x91 0x03 $1 "%#02.2r" $CS;
+    in  $R 0x11 0x01 $1 $CS;
+    @init { readFlash2b; }
+}
+
+readNetwork {
+    ReplyTimeout = 500;
+    out $W 0x90 0x01 0x01 $CS;
+    in  $R 0x10 0x0E "%*1r" "%(\$1Dhcp.VAL)01r"
+        "%(\$1IpAddress.D)01r" "%(\$1IpAddress.C)01r" "%(\$1IpAddress.B)01r" "%(\$1IpAddress.A)01r"
+        "%(\$1SubnetMask.D)01r" "%(\$1SubnetMask.C)01r" "%(\$1SubnetMask.B)01r" "%(\$1SubnetMask.A)01r"
+        "%(\$1Gateway.D)01r" "%(\$1Gateway.C)01r" "%(\$1Gateway.B)01r" "%(\$1Gateway.A)01r"
+        $CS;
+}
+
+writeNetwork {
+    ReplyTimeout = 1000;
+    out $W 0x91 0x0E 0x01 "%(\$1Dhcp.VAL)01r"
+        "%(\$1IpAddress.D)01r" "%(\$1IpAddress.C)01r" "%(\$1IpAddress.B)01r" "%(\$1IpAddress.A)01r"
+        "%(\$1SubnetMask.D)01r" "%(\$1SubnetMask.C)01r" "%(\$1SubnetMask.B)01r" "%(\$1SubnetMask.A)01r"
+        "%(\$1Gateway.D)01r" "%(\$1Gateway.C)01r" "%(\$1Gateway.B)01r" "%(\$1Gateway.A)01r"
+        $CS;
+    in  $R 0x11 0x01 0x01 $CS;
+}

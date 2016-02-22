@@ -1,0 +1,293 @@
+# Macros:
+#   P                   Prefix of the PV's names
+#   PORT                Asyn port for communication
+
+
+#
+# Network parameters
+#
+record(mbbo, "$(P)EthSpeed") {
+    field(DESC, "Ethernet Speed")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeFlash1b(0x02,0x82) $(PORT)")
+    field(ZRST, "Auto")
+    field(ZRVL, "1")
+    field(ONST, "100Mbps Full")
+    field(ONVL, "0")
+    field(TWST, "100Mbps Half")
+    field(TWVL, "2")
+    field(THST, "10Mbps Full")
+    field(THVL, "4")
+    field(FRST, "10Mbps Half")
+    field(FRVL, "6")
+}
+
+record(ao, "$(P)TcpPort") {
+    field(DESC, "TCP Port Number")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeFlash2b(0x03,0x83) $(PORT)")
+}
+
+record(bo, "$(P)Dhcp") {
+    field(DESC, "DHCP")
+    field(ZNAM, "Disable")
+    field(ONAM, "Enable")
+}
+
+record(calc, "$(P)IpAddress") {
+    field(DESC, "IP Address")
+}
+
+record(calc, "$(P)SubnetMask") {
+    field(DESC, "Subnet Mask")
+}
+
+record(calc, "$(P)Gateway") {
+    field(DESC, "Gateway")
+}
+
+record(bo, "$(P)ReadNetworkCfg") {
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto readNetwork($(P)) $(PORT)")
+}
+
+record(bo, "$(P)WriteNetworkCfg") {
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeNetwork($(P)) $(PORT)")
+}
+
+#
+# Overtemperature general error
+#
+record(mbbi, "$(P)OvertempError") {
+    field(DESC, "LED Overtemperature Error")
+    field(DTYP, "stream")
+    field(INP,  "@luciole.proto readVolatile1b(0x06) $(PORT)")
+    field(SCAN, "$(SCAN=1 second)")
+    field(ZRVL, "1")
+    field(ZRST, "No error")
+    field(ONVL, "2")
+    field(ONST, "Error: CH1")
+    field(TWVL, "3")
+    field(TWST, "Error: CH2")
+    field(THVL, "4")
+    field(THST, "Error: CH1 & CH2")
+    field(FLNK, "$(P)OvertempFOut")
+}
+
+record(fanout, "$(P)OvertempFOut") {
+    field(LNK1, "$(P)Ch1Overtemp")
+    field(LNK2, "$(P)Ch2Overtemp")
+    field(SELM, "All")
+}
+
+#
+# Per channel parameters
+#
+
+#
+# Offset Manual
+#
+record(ao, "$(P)Ch1OffsetManual") {
+    field(DESC, "Channel 1 Offset Manual")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeFlash2b(0x04,0x84) $(PORT)")
+}
+
+record(ao, "$(P)Ch2OffsetManual") {
+    field(DESC, "Channel 2 Offset Manual")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeFlash2b(0x05,0x85) $(PORT)")
+}
+
+#
+# Offset Remote
+#
+record(ao, "$(P)Ch1OffsetRemote") {
+    field(DESC, "Channel 1 Offset Remote")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeFlash2b(0x06,0x86) $(PORT)")
+}
+
+record(ao, "$(P)Ch2OffsetRemote") {
+    field(DESC, "Channel 2 Offset Remote")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeFlash2b(0x07,0x87) $(PORT)")
+}
+
+#
+# Ratiomax Manual
+#
+record(ao, "$(P)Ch1RatiomaxManual") {
+    field(DESC, "Channel 1 Ratiomax Manual")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeFlash2b(0x08,0x88) $(PORT)")
+}
+
+record(ao, "$(P)Ch2RatiomaxManual") {
+    field(DESC, "Channel 2 Ratiomax Manual")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeFlash2b(0x09,0x89) $(PORT)")
+}
+
+#
+# Ratiomax Remote
+#
+record(ao, "$(P)Ch1RatiomaxRemote") {
+    field(DESC, "Channel 1 Ratiomax Remote")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeFlash2b(0x0A,0x8A) $(PORT)")
+}
+
+record(ao, "$(P)Ch2RatiomaxRemote") {
+    field(DESC, "Channel 2 Ratiomax Remote")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeFlash2b(0x0B,0x8B) $(PORT)")
+}
+
+#
+# Digital command
+#
+record(ao, "$(P)Ch1Value") {
+    field(DESC, "Channel 1 digital command")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeVolatile2b(0x01,0xA8,0x28) $(PORT)")
+    field(LINR, "LINEAR")
+    field(ESLO, "0.005")
+    field(EGU,  "%")
+    field(DRVL, "0")
+    field(PREC, "3")
+    field(DRVH, "100")
+}
+
+record(ao, "$(P)Ch2Value") {
+    field(DESC, "Channel 2 digital command")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeVolatile2b(0x02,0xA9,0x29) $(PORT)")
+    field(LINR, "LINEAR")
+    field(ESLO, "0.005")
+    field(EGU,  "%")
+    field(DRVL, "0")
+    field(PREC, "3")
+    field(DRVH, "100")
+}
+
+#
+# Temperatures
+#
+record(ai, "$(P)Ch1LED1Temp") {
+    field(DESC, "Channel 1 LED 1 Temperature")
+    field(DTYP, "stream")
+    field(INP,  "@luciole.proto readVolatile2b(0x03) $(PORT)")
+    field(SCAN, "$(SCAN=1 second)")
+    field(LINR, "LINEAR")
+    field(ESLO, "0.1")
+    field(PREC, "1")
+    field(EGU,  "C")
+}
+
+record(ai, "$(P)Ch2LED1Temp") {
+    field(DESC, "Channel 2 LED 1 Temperature")
+    field(DTYP, "stream")
+    field(INP,  "@luciole.proto readVolatile2b(0x04) $(PORT)")
+    field(SCAN, "$(SCAN=1 second)")
+    field(LINR, "LINEAR")
+    field(ESLO, "0.1")
+    field(PREC, "1")
+    field(EGU,  "C")
+}
+
+record(ai, "$(P)Ch2LED2Temp") {
+    field(DESC, "Channel 2 LED 2 Temperature")
+    field(DTYP, "stream")
+    field(INP,  "@luciole.proto readVolatile2b(0x05) $(PORT)")
+    field(SCAN, "$(SCAN=1 second)")
+    field(LINR, "LINEAR")
+    field(ESLO, "0.1")
+    field(PREC, "1")
+    field(EGU,  "C")
+}
+
+#
+# Overtemperature status
+#
+record(calc, "$(P)Ch1Overtemp") {
+    field(DESC, "Channel 1 Overtemperature")
+    field(INPA, "$(P)OvertempError")
+    field(CALC, "A==2||A==4")
+    field(HIHI, "1")
+    field(HHSV, "MAJOR")
+}
+
+record(calc, "$(P)Ch2Overtemp") {
+    field(DESC, "Channel 2 Overtemperature")
+    field(INPA, "$(P)OvertempError")
+    field(CALC, "A==3||A==4")
+    field(HIHI, "1")
+    field(HHSV, "MAJOR")
+}
+
+#
+# Control mode: 1=Manual, 2=Analog, 4=Remote
+#
+record(mbbi, "$(P)Ch1Mode") {
+    field(DESC, "Channel 1 control mode")
+    field(DTYP, "stream")
+    field(INP,  "@luciole.proto readVolatile1b(0x09) $(PORT)")
+    field(SCAN, "$(SCAN=1 second)")
+    field(ZRVL, "1")
+    field(ZRST, "Manual")
+    field(ONVL, "2")
+    field(ONST, "Analog")
+    field(TWVL, "4")
+    field(TWST, "Remote")
+}
+
+record(mbbi, "$(P)Ch2Mode") {
+    field(DESC, "Channel 2 Control mode")
+    field(DTYP, "stream")
+    field(INP,  "@luciole.proto readVolatile1b(0x0A) $(PORT)")
+    field(SCAN, "$(SCAN=1 second)")
+    field(ZRVL, "1")
+    field(ZRST, "Manual")
+    field(ONVL, "2")
+    field(ONST, "Analog")
+    field(TWVL, "4")
+    field(TWST, "Remote")
+}
+
+#
+# Trigger mode
+#
+record(bo, "$(P)Ch1TrigMode") {
+    field(DESC, "Channel 1 Trigger mode")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeVolatile1b(0x07,0xAC,0x2C) $(PORT)")
+    field(ZNAM, "Off")
+    field(ONAM, "On")
+}
+
+record(bo, "$(P)Ch2TrigMode") {
+    field(DESC, "Channel 2 Trigger mode")
+    field(DTYP, "stream")
+    field(OUT,  "@luciole.proto writeVolatile1b(0x08,0xAD,0x2D) $(PORT)")
+    field(ZNAM, "Off")
+    field(ONAM, "On")
+}
+
+#
+# Release Network
+#
+record(ao, "$(P)Ch1ReleaseNetwork") {
+    field(DESC, "Channel 1 Release Network")
+    field(DTYP, "stream")
+    field(VAL,  "1")
+    field(OUT,  "@luciole.proto writeVolatile1b(0x0E,0xAA,0x2A) $(PORT)")
+}
+
+record(ao, "$(P)Ch2ReleaseNetwork") {
+    field(DESC, "Channel 2 Release Network")
+    field(DTYP, "stream")
+    field(VAL,  "2")
+    field(OUT,  "@luciole.proto writeVolatile1b(0x0E,0xAA,0x2A) $(PORT)")
+}
